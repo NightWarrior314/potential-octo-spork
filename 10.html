@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 10</title>
+    <script>
+        function showMenu() {
+            let choice;
+            do {
+                choice = prompt(
+                    "Оберіть проект для виконання:\n" +
+                    "1. Перестановка змінних (Проект 11)\n" +
+                    "2. Обчислення трикутника (Проект 12)\n" +
+                    "3. Перевірка точки (Проект 13)\n" +
+                    "0. Вихід"
+                );
+
+                switch (choice) {
+                    case "1":
+                        project11();
+                        break;
+                    case "2":
+                        project12();
+                        break;
+                    case "3":
+                        project13();
+                        break;
+                    case "0":
+                        alert("Програма завершена.");
+                        break;
+                    default:
+                        alert("Некоректний вибір. Спробуйте ще раз.");
+                }
+            } while (choice !== "0");
+        }
+
+        function project11() {
+            function permuteVariables(permutation) {
+                if (permutation.length !== 5) {
+                    alert("Помилка: Довжина перестановки повинна бути 5 символів.");
+                    return;
+                }
+
+                const validChars = "ABCDE";
+                for (let char of permutation) {
+                    if (!validChars.includes(char)) {
+                        alert("Помилка: Перестановка повинна містити лише символи A, B, C, D, E.");
+                        return;
+                    }
+                }
+
+                let variables = {
+                    A: prompt("Введіть значення A:"),
+                    B: prompt("Введіть значення B:"),
+                    C: prompt("Введіть значення C:"),
+                    D: prompt("Введіть значення D:"),
+                    E: prompt("Введіть значення E:")
+                };
+
+                let tempVariables = { ...variables };
+
+                for (let i = 0; i < 5; i++) {
+                    let sourceVar = permutation[i];
+                    let destVar = "ABCDE"[i];
+
+                    variables[destVar] = tempVariables[sourceVar];
+                }
+
+                let output = "Результат перестановки:\n";
+                for (let char of "ABCDE") {
+                    output += `${char}: ${variables[char]}\n`;
+                }
+                alert(output);
+            }
+
+            let permutation = prompt("Введіть перестановку (наприклад, BCDAE):").toUpperCase();
+            permuteVariables(permutation);
+        }
+
+        function project12() {
+            function distance(x1, y1, x2, y2) {
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function triangleDiameter(x1, y1, x2, y2, x3, y3) {
+                const a = distance(x1, y1, x2, y2);
+                const b = distance(x2, y2, x3, y3);
+                const c = distance(x3, y3, x1, y1);
+                return Math.max(a, b, c);
+            }
+
+            function reflectPoint(x, y, centerX, centerY) {
+                const reflectedX = 2 * centerX - x;
+                const reflectedY = 2 * centerY - y;
+                return { x: reflectedX, y: reflectedY };
+            }
+
+            function reflectPointLine(x, y, k, b) {
+                const denominator = 1 + k * k;
+                const reflectedX = (x * (1 - k * k) + 2 * k * y - 2 * k * b) / denominator;
+                const reflectedY = (2 * k * x - y * (1 - k * k) + 2 * b) / denominator;
+                return { x: reflectedX, y: reflectedY };
+            }
+
+            const x1 = parseFloat(prompt("Введіть координату X1 для точки A:"));
+            const y1 = parseFloat(prompt("Введіть координату Y1 для точки A:"));
+            const x2 = parseFloat(prompt("Введіть координату X2 для точки B:"));
+            const y2 = parseFloat(prompt("Введіть координату Y2 для точки B:"));
+            const x3 = parseFloat(prompt("Введіть координату X3 для точки C:"));
+            const y3 = parseFloat(prompt("Введіть координату Y3 для точки C:"));
+
+            const diameter = triangleDiameter(x1, y1, x2, y2, x3, y3);
+            alert("Діаметр трикутника: " + diameter);
+
+            const reflected = reflectPoint(2, 3, 5, 5);
+            console.log("Відображення точки (2, 3) відносно (5, 5):", reflected);
+
+            const reflectedLine = reflectPointLine(1, 2, 1, 1);
+            console.log("Відображення точки (1, 2) відносно y = x + 1:", reflectedLine);
+
+            function reflectTrianglePoint(x1, y1, x2, y2, x3, y3, centerX, centerY) {
+                let p1 = reflectPoint(x1, y1, centerX, centerY);
+                let p2 = reflectPoint(x2, y2, centerX, centerY);
+                let p3 = reflectPoint(x3, y3, centerX, centerY);
+                alert("Відображення трикутника відносно точки: \n" + JSON.stringify(p1) + "\n" + JSON.stringify(p2) + "\n" + JSON.stringify(p3));
+            }
+
+            reflectTrianglePoint(x1, y1, x2, y2, x3, y3, 0, 0);
+
+            function reflectTriangleLine(x1, y1, x2, y2, x3, y3, k, b) {
+                let p1 = reflectPointLine(x1, y1, k, b);
+                let p2 = reflectPointLine(x2, y2, k, b);
+                let p3 = reflectPointLine(x3, y3, k, b);
+                alert("Відображення трикутника відносно прямої: \n" + JSON.stringify(p1) + "\n" + JSON.stringify(p2) + "\n" + JSON.stringify(p3));
+            }
+            reflectTriangleLine(x1, y1, x2, y2, x3, y3, 1, 0);
+        }
+
+        function project13() {
+            function isPointInsideCircle(x, y, circleX, circleY, radius) {
+                const dx = x - circleX;
+                const dy = y - circleY;
+                return dx * dx + dy * dy <= radius * radius;
+            }
+
+            function isPointInsideVerticalStrip(x, y, stripX1, stripX2) {
+                return x >= stripX1 && x <= stripX2;
+            }
+
+            function isPointInIntersection(x, y, circleX, circleY, radius, stripX1, stripX2) {
+                return isPointInsideCircle(x, y, circleX, circleY, radius) &&
+                    isPointInsideVerticalStrip(x, y, stripX1, stripX2);
+            }
+
+            const circleX = 0;
+            const circleY = 0;
+            const radius = 5;
+
+            const stripX1 = -2;
+            const stripX2 = 2;
+
+            const points = [
+                { x: 0, y: 0 },
+                { x: 1, y: 4 },
+                { x: 6, y: 0 },
+                { x: 0, y: 6 },
+                { x: 3, y: 0 },
+                { x: 1, y: 5 }
+            ];
+
+            for (const point of points) {
+                const isInIntersection = isPointInIntersection(point.x, point.y, circleX, circleY, radius, stripX1, stripX2);
+                console.log(`Точка (${point.x}, ${point.y}) знаходиться ${isInIntersection ? "в перетині" : "поза перетином"}`);
+            }
+
+            function checkPoint() {
+                let pointX = parseFloat(prompt("Введіть координату X точки:"));
+                let pointY = parseFloat(prompt("Введіть координату Y точки:"));
+                if (isNaN(pointX) || isNaN(pointY)) {
+                    alert("Будь ласка, введіть коректні числа.");
+                    return;
+                }
+                const isInIntersection = isPointInIntersection(pointX, pointY, circleX, circleY, radius, stripX1, stripX2);
+                alert(`Точка (${pointX}, ${pointY}) знаходиться ${isInIntersection ? "в перетині" : "поза перетином"}`);
+            }
+            checkPoint();
+        }
+
+        showMenu();
+    </script>
+</head>
+<body>
+</body>
+</html>

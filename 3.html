@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Сортування та перестановка</title>
+    <style>
+        #sequence, #sortedSequence {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .element {
+            border: 1px solid black;
+            padding: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Сортування та перестановка послідовності</h1>
+
+    <input type="file" id="inputFile" accept=".txt"><br><br>
+    <button onclick="loadFile()">Завантажити з файлу</button><br><br>
+
+    Послідовність:<br>
+    <div id="sequence"></div><br><br>
+
+    <div id="swapArea">
+        Swap: <span id="operand1"></span> <span id="operand2"></span>
+        <button onclick="performSwap()" disabled id="swapButton">Swap</button>
+    </div><br><br>
+
+    <button onclick="sortNumbers()">Сортувати</button><br><br>
+
+    Упорядкована послідовність:<br>
+    <div id="sortedSequence"></div><br><br>
+
+    <button onclick="saveFile()">Зберегти у файл</button>
+    <input type="text" id="outputFileName" value="sorted_numbers.txt">
+
+    <script>
+        let sequence = [];
+        let operand1 = null;
+        let operand2 = null;
+
+        function bubbleSort(arr) {
+            let n = arr.length;
+            let arrCopy = [...arr]
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (arrCopy[j] > arrCopy[j + 1]) {
+                        [arrCopy[j], arrCopy[j + 1]] = [arrCopy[j + 1], arrCopy[j]];
+                    }
+                }
+            }
+            return arrCopy;
+        }
+
+        function displaySequence(arr, elementId) {
+            const sequenceDiv = document.getElementById(elementId);
+            sequenceDiv.innerHTML = "";
+            arr.forEach((item, index) => {
+                const element = document.createElement("div");
+                element.classList.add("element");
+                element.textContent = item;
+                element.dataset.index = index;
+                element.onclick = selectElement;
+                sequenceDiv.appendChild(element);
+            });
+        }
+
+        function loadFile() {
+            const fileInput = document.getElementById("inputFile");
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const fileContent = event.target.result;
+                    sequence = fileContent.trim().split(/\s+/).map(Number).filter(num => !isNaN(num));
+                    displaySequence(sequence, "sequence");
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function selectElement(event) {
+          const selectedElement = event.target;
+            const selectedIndex = parseInt(selectedElement.dataset.index);
+
+            if (operand1 === null) {
+                operand1 = selectedIndex;
+                document.getElementById("operand1").textContent = sequence[selectedIndex];
+            } else if (operand2 === null && operand1 != selectedIndex) {
+                operand2 = selectedIndex;
+                document.getElementById("operand2").textContent = sequence[selectedIndex];
+                document.getElementById("swapButton").disabled = false;
+            } else {
+              operand1 = selectedIndex;
+              document.getElementById("operand1").textContent = sequence[selectedIndex];
+              operand2 = null;
+              document.getElementById("operand2").textContent = "";
+              document.getElementById("swapButton").disabled = true;
+            }
+        }
+
+        function performSwap() {
+            if (operand1 !== null && operand2 !== null) {
+                [sequence[operand1], sequence[operand2]] = [sequence[operand2], sequence[operand1]];
+                displaySequence(sequence, "sequence");
+
+                operand1 = null;
+                operand2 = null;
+                document.getElementById("operand1").textContent = "";
+                document.getElementById("operand2").textContent = "";
+                document.getElementById("swapButton").disabled = true;
+            }
+        }
+
+        function sortNumbers() {
+          if (sequence.length > 0) {
+            const sorted = bubbleSort(sequence);
+            displaySequence(sorted, "sortedSequence");
+          }
+        }
+
+        function saveFile() {
+            const sortedSequenceDiv = document.getElementById("sortedSequence");
+            if (sortedSequenceDiv.textContent.trim() === "") {
+                alert("Спочатку потрібно відсортувати послідовність.");
+                return;
+            }
+            const fileName = document.getElementById("outputFileName").value;
+            const blob = new Blob([sortedSequenceDiv.textContent], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
+    </script>
+</body>
+</html>

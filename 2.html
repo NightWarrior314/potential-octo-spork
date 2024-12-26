@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Влучи в область</title>
+    <style>
+        #myCanvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Влучи в область!</h1>
+    <canvas id="myCanvas" width="400" height="300"></canvas><br>
+    X: <input type="number" id="xInput"><br>
+    Y: <input type="number" id="yInput"><br>
+    <button onclick="checkHit()">Спроба</button>
+    <div id="message"></div>
+
+    <script>
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+        const messageDiv = document.getElementById("message");
+
+        // Параметри фігур
+        const strip1X = 50;
+        const strip1Width = 50;
+        const strip2X = 250;
+        const strip2Width = 50;
+        const circleX = 200;
+        const circleY = 150;
+        const circleRadius = 100;
+
+        let attempts = 0;
+        let lastGuessX = null;
+        let lastGuessY = null;
+
+        drawArea();
+
+        function drawArea() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Малюємо смужки
+            ctx.fillStyle = "blue";
+            ctx.fillRect(strip1X, 0, strip1Width, canvas.height);
+            ctx.fillRect(strip2X, 0, strip2Width, canvas.height);
+
+            // Малюємо коло
+            ctx.fillStyle = "rgba(255, 0, 0, 0.5)"; // Прозорий червоний
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Малюємо контур області перетину
+            ctx.strokeStyle = "green";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.rect(strip1X, circleY-circleRadius, strip1Width, 2*circleRadius);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.rect(strip2X, circleY-circleRadius, strip2Width, 2*circleRadius);
+            ctx.stroke();
+
+        }
+
+        function checkHit() {
+            const x = parseInt(document.getElementById("xInput").value);
+            const y = parseInt(document.getElementById("yInput").value);
+
+            if (isNaN(x) || isNaN(y)) {
+                messageDiv.textContent = "Введіть коректні координати!";
+                return;
+            }
+
+            attempts++;
+
+            const inStrip1 = x >= strip1X && x <= strip1X + strip1Width;
+            const inStrip2 = x >= strip2X && x <= strip2X + strip2Width;
+            const inCircle = Math.pow(x - circleX, 2) + Math.pow(y - circleY, 2) <= Math.pow(circleRadius, 2);
+
+            if ((inStrip1 || inStrip2) && inCircle) {
+                messageDiv.textContent = `Нарешті ви влучили з ${attempts}-ї спроби!`;
+                drawPoint(x,y, "green")
+                return;
+            } else {
+              drawPoint(x,y, "red")
+                let message = "Холодніше.";
+                if (lastGuessX !== null && lastGuessY !== null) {
+                    const prevDist = Math.sqrt(Math.pow(lastGuessX - circleX, 2) + Math.pow(lastGuessY - circleY, 2));
+                    const currDist = Math.sqrt(Math.pow(x - circleX, 2) + Math.pow(y - circleY, 2));
+                    if (currDist < prevDist) {
+                        message = "Тепліше.";
+                    }
+                }
+                messageDiv.textContent = message;
+                lastGuessX = x;
+                lastGuessY = y;
+            }
+        }
+
+        function drawPoint(x,y, color){
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+
+    </script>
+</body>
+</html>

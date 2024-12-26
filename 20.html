@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 20</title>
+    <script>
+        function mainMenu() {
+            let choice;
+            do {
+                choice = prompt("Виберіть проект для виконання:\n1 - Проект 21\n2 - Проект 22\n3 - Проект 23\n0 - Вихід");
+                switch (choice) {
+                    case "1":
+                        project21();
+                        break;
+                    case "2":
+                        project22();
+                        break;
+                    case "3":
+                        project23();
+                        break;
+                    case "0":
+                        alert("Програма завершена.");
+                        break;
+                    default:
+                        alert("Невірний вибір. Спробуйте ще раз.");
+                }
+            } while (choice !== "0");
+        }
+
+        function project21() {
+            // Функція для перевірки, чи точка знаходиться всередині кола
+            function isPointInsideCircle(x, y, circleX, circleY, radius) {
+                const dx = x - circleX;
+                const dy = y - circleY;
+                return dx * dx + dy * dy <= radius * radius;
+            }
+
+            // Функція для перевірки, чи точка знаходиться всередині вертикальної стрічки
+            function isPointInsideVerticalStrip(x, y, stripX1, stripX2) {
+                return x >= stripX1 && x <= stripX2;
+            }
+
+            // Функція для перевірки, чи точка входить в об'єднання двох стрічок
+            function isPointInsideTwoStrips(x, y, strip1X1, strip1X2, strip2X1, strip2X2) {
+                return isPointInsideVerticalStrip(x, y, strip1X1, strip1X2) || isPointInsideVerticalStrip(x, y, strip2X1, strip2X2);
+            }
+
+            // Функція для перевірки, чи точка знаходиться в заданій області
+            function isPointInTargetArea(x, y, circleX, circleY, radius, strip1X1, strip1X2, strip2X1, strip2X2) {
+                return isPointInsideCircle(x, y, circleX, circleY, radius) && isPointInsideTwoStrips(x, y, strip1X1, strip1X2, strip2X1, strip2X2);
+            }
+
+            function startGame() {
+                const circleX = 0, circleY = 0, radius = 10;
+                const strip1X1 = -5, strip1X2 = -2, strip2X1 = 2, strip2X2 = 5;
+
+                let attempts = 0;
+                let lastDistance = Infinity;
+
+                alert("Спробуйте влучити в область!");
+
+                function makeGuess() {
+                    let x = parseFloat(prompt("Введіть координату X:"));
+                    let y = parseFloat(prompt("Введіть координату Y:"));
+
+                    if (isNaN(x) || isNaN(y)) {
+                        alert("Будь ласка, введіть коректні числа.");
+                        return makeGuess();
+                    }
+
+                    attempts++;
+
+                    const isHit = isPointInTargetArea(x, y, circleX, circleY, radius, strip1X1, strip1X2, strip2X1, strip2X2);
+
+                    if (isHit) {
+                        alert(`Нарешті ви влучили з ${attempts}-ї спроби!`);
+                        return;
+                    } else {
+                        const currentDistance = Math.sqrt((x - circleX) * (x - circleX) + (y - circleY) * (y - circleY));
+                        alert(currentDistance < lastDistance ? "Тепліше!" : "Холодніше!");
+                        lastDistance = currentDistance;
+                        makeGuess();
+                    }
+                }
+
+                makeGuess();
+            }
+
+            startGame();
+        }
+
+        function project22() {
+            function countMinValuesGreaterThanAverage() {
+                let sum = 0;
+                let count = 0;
+                let minValue = Infinity;
+                let input;
+                let numbers = [];
+
+                alert("Введіть послідовність цілих чисел. Введіть 'q' або залиште поле порожнім для завершення.");
+
+                while (true) {
+                    input = prompt("Введіть ціле число:");
+
+                    if (input === 'q' || input === null || input === "") {
+                        break;
+                    }
+
+                    const num = parseInt(input);
+
+                    if (isNaN(num)) {
+                        alert("Будь ласка, введіть коректне ціле число.");
+                        continue;
+                    }
+
+                    numbers.push(num);
+                    sum += num;
+                    count++;
+
+                    if (num < minValue) {
+                        minValue = num;
+                    }
+                }
+
+                if (count === 0) {
+                    alert("Ви не ввели жодного числа.");
+                    return;
+                }
+
+                const average = sum / count;
+                let minValuesCount = 0;
+
+                for (const num of numbers) {
+                    if (num === minValue && num >= average) {
+                        minValuesCount++;
+                    }
+                }
+
+                alert(`Середнє арифметичне: ${average}`);
+                alert(`Мінімальне значення: ${minValue}`);
+                alert(`Кількість мінімальних значень, що не менші за середнє: ${minValuesCount}`);
+            }
+
+            countMinValuesGreaterThanAverage();
+        }
+
+        function project23() {
+            function digitSum(num) {
+                let sum = 0;
+                num = Math.abs(num);
+                while (num > 0) {
+                    sum += num % 10;
+                    num = Math.floor(num / 10);
+                }
+                return sum;
+            }
+
+            function insertionSortByIndex(arr) {
+                const n = arr.length;
+                for (let i = 1; i < n; i++) {
+                    let key = arr[i];
+                    let j = i - 1;
+
+                    while (j >= 0 && digitSum(arr[key]) < digitSum(arr[arr[j]])) {
+                        arr[j + 1] = arr[j];
+                        j = j - 1;
+                    }
+                    arr[j + 1] = key;
+                }
+            }
+
+            let n = parseInt(prompt("N = ?"));
+            let a = [];
+
+            for (let i = 0; i < n; i++) {
+                a.push(parseInt(prompt(`a[${i + 1}] = ?`)));
+            }
+
+            let indices = a.map((_, index) => index);
+            insertionSortByIndex(indices);
+
+            let output = "Упорядкована послідовність:\n";
+            for (let i = 0; i < n; i++) {
+                output += a[indices[i]] + " ";
+            }
+
+            alert(output);
+        }
+    </script>
+</head>
+<body onload="mainMenu()">
+    <h1>Project 20</h1>
+</body>
+</html>

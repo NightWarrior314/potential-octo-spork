@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Перестановка змінних</title>
+    <style>
+        .variable {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 50px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #swap-operands {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Перестановка змінних</h1>
+
+    <div id="variables">
+        <div class="variable" id="A">A</div>
+        <div class="variable" id="B">B</div>
+        <div class="variable" id="C">C</div>
+        <div class="variable" id="D">D</div>
+        <div class="variable" id="E">E</div>
+    </div>
+
+    <p id="task">Завдання: Перестановка <span id="permutation-value"></span></p>
+
+    <div id="swap-operands">
+        <span id="operand1"></span>
+        <span id="operand2"></span>
+        <button id="swap-button" disabled>Swap</button>
+    </div>
+
+    <button onclick="resetVariables()">Скинути</button>
+    <button onclick="applyPermutation()">Застосувати перестановку</button>
+
+    <script>
+        const originalValues = { A: 1, B: 2, C: 3, D: 4, E: 5 };
+        let currentValues = { ...originalValues };
+        let permutation = "ACEDB";
+        let operand1 = null;
+        let operand2 = null;
+        const permutationValue = document.getElementById("permutation-value");
+        permutationValue.textContent = permutation;
+
+        displayVariables();
+
+        const swapButton = document.getElementById("swap-button");
+        swapButton.addEventListener("click", performSwap);
+
+        const variableElements = document.querySelectorAll(".variable");
+        variableElements.forEach(element => {
+            element.addEventListener("click", selectOperand);
+        });
+
+        function selectOperand(event) {
+            const selectedVariable = event.target.id;
+            if (selectedVariable === operand1 || selectedVariable === operand2) {
+                return;
+            }
+            if (!operand1) {
+                operand1 = selectedVariable;
+                document.getElementById("operand1").innerText = operand1;
+            } else if (!operand2) {
+                operand2 = selectedVariable;
+                document.getElementById("operand2").innerText = operand2;
+                swapButton.disabled = false;
+            }
+        }
+
+        function performSwap() {
+            if (operand1 && operand2) {
+                const temp = currentValues[operand1];
+                currentValues[operand1] = currentValues[operand2];
+                currentValues[operand2] = temp;
+                displayVariables(); // Оновлюємо відображення після свопу
+
+                operand1 = null;
+                operand2 = null;
+                document.getElementById("operand1").innerText = "";
+                document.getElementById("operand2").innerText = "";
+                swapButton.disabled = true;
+            }
+        }
+
+        function displayVariables() {
+            for (const key in currentValues) {
+                const element = document.getElementById(key);
+                element.textContent = currentValues[key];
+                element.dataset.value = currentValues[key]; // Важливо для коректного свопу
+            }
+        }
+
+        function applyPermutation() {
+            const newValues = {};
+            for (let i = 0; i < permutation.length; i++) {
+                newValues[permutation[i]] = currentValues[Object.keys(originalValues)[i]]; // Correct mapping
+            }
+            currentValues = { ...newValues };
+            displayVariables(); // Оновлюємо відображення після застосування перестановки
+        }
+
+        function resetVariables() {
+            currentValues = { ...originalValues };
+            displayVariables();
+        }
+    </script>
+</body>
+</html>
